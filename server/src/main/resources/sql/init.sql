@@ -46,6 +46,10 @@ CREATE TABLE sys_permission (
     icon VARCHAR(50) COMMENT '图标',
     sort INT DEFAULT 0 COMMENT '排序',
     parent_id BIGINT DEFAULT 0 COMMENT '父权限ID',
+    visible TINYINT DEFAULT 1 COMMENT '是否显示：0-隐藏，1-显示',
+    status TINYINT DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
+    redirect VARCHAR(255) COMMENT '重定向路径',
+    always_show TINYINT DEFAULT 0 COMMENT '是否总是显示：0-否，1-是',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     deleted TINYINT DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
@@ -88,30 +92,60 @@ INSERT INTO sys_role (name, code, description) VALUES
 ('超级管理员', 'SUPER_ADMIN', '拥有系统所有权限'),
 ('普通用户', 'USER', '普通用户权限');
 
--- 插入权限
-INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id) VALUES 
--- 一级菜单
-('仪表板', 'dashboard', 'menu', '/dashboard', 'Layout', 'dashboard', 1, 0),
-('系统管理', 'system', 'menu', '/system', 'Layout', 'system', 2, 0),
+-- 插入权限（菜单）
+-- 一级菜单（分别插入以获取准确的ID）
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('工作台', 'dashboard', 'menu', '/dashboard', 'dashboard/index', 'dashboard', 1, 0, 1, 1);
+SET @dashboard_id = LAST_INSERT_ID();
 
--- 仪表板子菜单
-('首页', 'dashboard:home', 'menu', '/dashboard/home', 'dashboard/index', 'home', 1, 1),
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('系统管理', 'system', 'menu', '/system', NULL, 'setting', 2, 0, 1, 1);
+SET @system_id = LAST_INSERT_ID();
 
--- 系统管理子菜单
-('用户管理', 'system:user', 'menu', '/system/user', 'system/user/index', 'user', 1, 2),
-('角色管理', 'system:role', 'menu', '/system/role', 'system/role/index', 'role', 2, 2),
+-- 系统管理子菜单（分别插入以获取准确的ID）
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('用户管理', 'system:user', 'menu', '/user/list', 'user/list', 'user', 1, @system_id, 1, 1);
+SET @user_menu_id = LAST_INSERT_ID();
+
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('角色管理', 'system:role', 'menu', '/system/role', 'system/role/index', 'team', 2, @system_id, 1, 1);
+SET @role_menu_id = LAST_INSERT_ID();
+
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('权限管理', 'system:permission', 'menu', '/system/permission', 'system/permission/index', 'safety', 3, @system_id, 1, 1);
+SET @permission_menu_id = LAST_INSERT_ID();
+
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('菜单管理', 'system:menu', 'menu', '/system/menu', 'system/menu/index', 'menu', 4, @system_id, 1, 1);
+SET @menu_menu_id = LAST_INSERT_ID();
 
 -- 用户管理按钮权限
-('用户查询', 'system:user:list', 'button', '', '', '', 1, 4),
-('用户新增', 'system:user:add', 'button', '', '', '', 2, 4),
-('用户修改', 'system:user:edit', 'button', '', '', '', 3, 4),
-('用户删除', 'system:user:delete', 'button', '', '', '', 4, 4),
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('用户查询', 'system:user:list', 'button', '', '', '', 1, @user_menu_id, 0, 1),
+('用户新增', 'system:user:add', 'button', '', '', '', 2, @user_menu_id, 0, 1),
+('用户修改', 'system:user:edit', 'button', '', '', '', 3, @user_menu_id, 0, 1),
+('用户删除', 'system:user:delete', 'button', '', '', '', 4, @user_menu_id, 0, 1);
 
 -- 角色管理按钮权限
-('角色查询', 'system:role:list', 'button', '', '', '', 1, 5),
-('角色新增', 'system:role:add', 'button', '', '', '', 2, 5),
-('角色修改', 'system:role:edit', 'button', '', '', '', 3, 5),
-('角色删除', 'system:role:delete', 'button', '', '', '', 4, 5);
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('角色查询', 'system:role:list', 'button', '', '', '', 1, @role_menu_id, 0, 1),
+('角色新增', 'system:role:add', 'button', '', '', '', 2, @role_menu_id, 0, 1),
+('角色修改', 'system:role:edit', 'button', '', '', '', 3, @role_menu_id, 0, 1),
+('角色删除', 'system:role:delete', 'button', '', '', '', 4, @role_menu_id, 0, 1);
+
+-- 权限管理按钮权限
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('权限查询', 'system:permission:list', 'button', '', '', '', 1, @permission_menu_id, 0, 1),
+('权限新增', 'system:permission:add', 'button', '', '', '', 2, @permission_menu_id, 0, 1),
+('权限修改', 'system:permission:edit', 'button', '', '', '', 3, @permission_menu_id, 0, 1),
+('权限删除', 'system:permission:delete', 'button', '', '', '', 4, @permission_menu_id, 0, 1);
+
+-- 菜单管理按钮权限
+INSERT INTO sys_permission (name, code, type, path, component, icon, sort, parent_id, visible, status) VALUES 
+('菜单查询', 'system:menu:list', 'button', '', '', '', 1, @menu_menu_id, 0, 1),
+('菜单新增', 'system:menu:add', 'button', '', '', '', 2, @menu_menu_id, 0, 1),
+('菜单修改', 'system:menu:edit', 'button', '', '', '', 3, @menu_menu_id, 0, 1),
+('菜单删除', 'system:menu:delete', 'button', '', '', '', 4, @menu_menu_id, 0, 1);
 
 -- 给超级管理员分配角色
 INSERT INTO sys_user_role (user_id, role_id) VALUES (1, 1);

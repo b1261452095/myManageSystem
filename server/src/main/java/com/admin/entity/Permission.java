@@ -69,6 +69,30 @@ public class Permission {
     private Long parentId;
     
     /**
+     * 是否显示：0-隐藏，1-显示
+     */
+    @TableField("visible")
+    private Integer visible;
+    
+    /**
+     * 状态：0-禁用，1-启用
+     */
+    @TableField("status")
+    private Integer status;
+    
+    /**
+     * 重定向路径
+     */
+    @TableField("redirect")
+    private String redirect;
+    
+    /**
+     * 是否总是显示：0-否，1-是
+     */
+    @TableField("always_show")
+    private Integer alwaysShow;
+    
+    /**
      * 创建时间
      */
     @TableField(value = "created_at", fill = FieldFill.INSERT)

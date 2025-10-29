@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, h } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import {
@@ -90,9 +90,20 @@ import {
   MenuFoldOutlined,
   UserOutlined,
   LogoutOutlined,
+  DashboardOutlined,
+  TeamOutlined,
+  SafetyOutlined,
+  SettingOutlined,
+  HomeOutlined,
+  AppstoreOutlined,
+  MenuOutlined as MenuIconOutlined,
+  FileOutlined,
+  FolderOutlined,
+  UnorderedListOutlined,
 } from '@ant-design/icons-vue'
 import type { MenuProps } from 'ant-design-vue'
 import { generateMenuFromRoutes, getSelectedMenuKeys, getOpenMenuKeys } from '@/utils/menu'
+import type { PermissionInfo } from '@/types'
 
 const router = useRouter()
 const route = useRoute()
@@ -102,14 +113,60 @@ const collapsed = ref(false)
 const selectedKeys = ref<string[]>(['/dashboard'])
 const openKeys = ref<string[]>([])
 
-// 从路由配置生成菜单项
-const menuItems = computed<MenuProps['items']>(() => {
-  // 获取 Layout 路由的子路由
+// 图标映射
+const iconMap: Record<string, any> = {
+  dashboard: DashboardOutlined,
+  user: UserOutlined,
+  team: TeamOutlined,
+  safety: SafetyOutlined,
+  setting: SettingOutlined,
+  home: HomeOutlined,
+  appstore: AppstoreOutlined,
+  menu: MenuIconOutlined,
+  file: FileOutlined,
+  folder: FolderOutlined,
+  list: UnorderedListOutlined
+}
+
+// 将后端菜单数据转换为Ant Design菜单格式
+const convertToMenuItems = (menus: PermissionInfo[]): MenuProps['items'] => {
+  return menus.map(menu => {
+    const item: any = {
+      key: menu.path,
+      label: menu.name,
+      icon: menu.icon ? h(iconMap[menu.icon] || MenuIconOutlined) : undefined,
+    }
+    
+    if (menu.children && menu.children.length > 0) {
+      item.children = convertToMenuItems(menu.children)
+    }
+    
+    return item
+  })
+}
+
+// 从路由配置生成菜单项（备用方案）
+const staticMenuItems = computed<MenuProps['items']>(() => {
   const layoutRoute = router.options.routes.find(r => r.path === '/')
   if (layoutRoute?.children) {
     return generateMenuFromRoutes(layoutRoute.children)
   }
   return []
+})
+
+// 最终使用的菜单项（优先使用动态菜单）
+const menuItems = computed<MenuProps['items']>(() => {
+  console.log('🔍 计算菜单项，userMenus 长度:', userStore.userMenus.length)
+  console.log('🔍 userStore.userMenus:', userStore.userMenus)
+  
+  if (userStore.userMenus.length > 0) {
+    const items = convertToMenuItems(userStore.userMenus)
+    console.log('✅ 使用动态菜单，菜单项:', items)
+    return items
+  }
+  
+  console.log('⚠️ 使用静态菜单，菜单项:', staticMenuItems.value)
+  return staticMenuItems.value
 })
 
 // 监听路由变化，更新选中的菜单
@@ -123,10 +180,6 @@ watch(() => route.path, updateSelectedKeys, { immediate: true })
 
 onMounted(() => {
   updateSelectedKeys()
-  // 获取用户信息
-  if (userStore.token && !userStore.userInfo) {
-    userStore.fetchUserInfo()
-  }
 })
 
 // 菜单点击事件

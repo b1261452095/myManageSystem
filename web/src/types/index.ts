@@ -72,6 +72,10 @@ export interface PermissionInfo {
   icon?: string
   sort?: number
   parentId?: number
+  visible?: number // 是否显示：0-隐藏，1-显示
+  status?: number // 状态：0-禁用，1-启用
+  redirect?: string // 重定向路径
+  alwaysShow?: number // 是否总是显示：0-否，1-是
   createdAt?: string
   updatedAt?: string
   children?: PermissionInfo[]

@@ -21,5 +21,10 @@ public interface PermissionService extends IService<Permission> {
      * 获取用户的权限列表（根据用户的角色）
      */
     List<Permission> getUserPermissions(Long userId);
+    
+    /**
+     * 根据角色ID获取权限ID列表
+     */
+    List<Long> getPermissionIdsByRoleId(Long roleId);
 }
 

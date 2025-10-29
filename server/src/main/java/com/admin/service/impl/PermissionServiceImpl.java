@@ -6,6 +6,7 @@ import com.admin.service.PermissionService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements PermissionService {
     
     private final PermissionMapper permissionMapper;
+    private final JdbcTemplate jdbcTemplate;
     
     @Override
     public List<Permission> getPermissionTree() {
@@ -39,6 +41,12 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         return permissionMapper.getUserPermissions(userId);
     }
     
+    @Override
+    public List<Long> getPermissionIdsByRoleId(Long roleId) {
+        String sql = "SELECT permission_id FROM sys_role_permission WHERE role_id = ? AND deleted = 0";
+        return jdbcTemplate.queryForList(sql, Long.class, roleId);
+    }
+    
     /**
      * 递归构建树形结构
      */
@@ -46,7 +54,13 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         List<Permission> children = new ArrayList<>();
         
         for (Permission permission : allPermissions) {
-            if (permission.getParentId().equals(parentId)) {
+            // 空值安全检查
+            Long permissionParentId = permission.getParentId();
+            if (permissionParentId == null) {
+                permissionParentId = 0L;
+            }
+            
+            if (permissionParentId.equals(parentId)) {
                 // 递归查找子节点
                 List<Permission> subChildren = buildTree(allPermissions, permission.getId());
                 if (!subChildren.isEmpty()) {
