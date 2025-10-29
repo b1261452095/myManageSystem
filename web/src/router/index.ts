@@ -65,7 +65,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: '/system/menu',
             name: 'SystemMenu',
-            component: () => import('@/views/dashboard/index.vue'), // 暂时使用 dashboard 占位
+            component: () => import('@/views/system/menu/index.vue'), 
             meta: { title: '菜单管理', icon: 'MenuOutlined' },
           },
           {
