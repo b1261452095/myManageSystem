@@ -45,10 +45,10 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '系统管理', icon: 'SettingOutlined' },
         children: [
           {
-            path: '/user/list',
+            path: '/system/user',
             name: 'UserList',
             component: () => import('@/views/user/list.vue'),
-            meta: { title: '用户列表', icon: 'UnorderedListOutlined' },
+            meta: { title: '用户管理', icon: 'UnorderedListOutlined' },
           },
           {
             path: '/system/role',
@@ -75,40 +75,10 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '数据字典', icon: 'DictionaryOutlined' },
           },
           {
-            path: '/system/dict-data',
-            name: 'SystemDictData',
-            component: () => import('@/views/dashboard/index.vue'), // 暂时使用 dashboard 占位
-            meta: { title: '数据配置', icon: 'ConfigurationOutlined' },
-          },
-          {
             path: '/system/log',
             name: 'SystemLog',
             component: () => import('@/views/dashboard/index.vue'), // 暂时使用 dashboard 占位
             meta: { title: '系统日志', icon: 'LogOutlined' },
-          },
-          {
-            path: '/system/file',
-            name: 'SystemFile',
-            component: () => import('@/views/dashboard/index.vue'), // 暂时使用 dashboard 占位
-            meta: { title: '文件管理', icon: 'FileOutlined' },
-          },
-          {
-            path: '/system/notice',
-            name: 'SystemNotice',
-            component: () => import('@/views/dashboard/index.vue'), // 暂时使用 dashboard 占位
-            meta: { title: '通知公告', icon: 'NotificationOutlined' },
-          },
-          {
-            path: '/system/message',
-            name: 'SystemMessage',
-            component: () => import('@/views/dashboard/index.vue'), // 暂时使用 dashboard 占位
-            meta: { title: '消息中心', icon: 'MessageOutlined' },
-          },
-          {
-            path: '/system/setting',
-            name: 'SystemSetting',
-            component: () => import('@/views/dashboard/index.vue'), // 暂时使用 dashboard 占位
-            meta: { title: '系统设置', icon: 'SettingOutlined' },
           },
           {
             path: '/system/profile',

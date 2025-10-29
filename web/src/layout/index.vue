@@ -171,8 +171,12 @@ const menuItems = computed<MenuProps['items']>(() => {
 
 // 监听路由变化，更新选中的菜单
 const updateSelectedKeys = () => {
-  selectedKeys.value = getSelectedMenuKeys(route.path)
-  openKeys.value = getOpenMenuKeys(route.path)
+  const newSelectedKeys = getSelectedMenuKeys(route.path)
+  const newOpenKeys = getOpenMenuKeys(route.path)
+  
+  selectedKeys.value = newSelectedKeys
+  openKeys.value = newOpenKeys
+  
 }
 
 // 监听路由变化

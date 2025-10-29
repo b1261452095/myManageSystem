@@ -103,7 +103,7 @@ export const useUserStore = defineStore('user', () => {
     login,
     logout,
     fetchUserInfo,
-    fetchUserMenusAndRoutes,
+  
   }
 })
 
